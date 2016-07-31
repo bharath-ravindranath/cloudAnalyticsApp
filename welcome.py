@@ -19,7 +19,10 @@ import ibmiotf.application
 import json
 
 options = {
-
+  'org' : '',
+  'auth-key' : 'a-i5nag4-ei6xrqz4xr',
+  'auth-token' : 'u+BcZAoz)jU+Tq+&6y',
+  'auth-method' : 'use-token-auth'
 }
 
 app = Flask(__name__)
@@ -60,11 +63,9 @@ def myDeviceEventCallback(event):
 
   if db2conn:
     if s["d"]["topic"][:4] == "CSIE":
-      ins = ibm_db.exec_immediate(db2conn, "INSERT INTO DASH<>.CSIE (TIME_STAMP, SIGNAL_SENT) VALUES" + \
-       "('%s','%s')" %(s['d']['timestamp'], s['d']['signal']))
+      ins = ibm_db.exec_immediate(db2conn, "INSERT INTO DASH5369.CSIE (TIME_STAMP, SIGNAL_SENT) VALUES ('%s','%s');" %(s['d']['timestamp'], s['d']['signal']))
     elif s['d']['topic'][:3] == 'MDV':
-      ins = ibm_db.exec_immediate(db2conn, "INSERT INTO DASH<>.MDV (ID, TIME_STAMP, SINGAL_RECEIVED, SPEED)"\
-       + "VALUES (%s, '%s', '%s', %s)" %(s['d']['id'],s['d']['tiemstamp'],s['d']['signal'], s['d']['speed']))
+      ins = ibm_db.exec_immediate(db2conn, "INSERT INTO DASH5369.MDV (ID, TIME_STAMP, SINGAL_RECEIVED, SPEED) VALUES (%s, '%s', '%s', %s);" %(s['d']['id'],s['d']['tiemstamp'],s['d']['signal'], s['d']['speed']))
 
 
 def main():
@@ -81,8 +82,7 @@ def main():
     db2info = json.loads(os.environ['VCAP_SERVICES'])['dashDB'][0]
     db2cred = db2info['credentials']
 
-  db2conn = ibm_db.connect('DATABASE=' + db2cred['db'] + '; HOSTNAME=' + db2cred['hostname'] + '; PORT=' + \
-    db2cred['port'] + ';UID=' + db2cred['username'] + ';PWD=' + db2cred['password'] + ';', '', '')
+  db2conn = ibm_db.connect('DATABASE=' + db2cred['db'] + '; HOSTNAME=' + db2cred['hostname'] + '; PORT=' + db2cred['port'] + ';UID=' + db2cred['username'] + ';PWD=' + db2cred['password'] + ';', '', '')
 
   app.run(host='0.0.0.0', port=int(port))
 
