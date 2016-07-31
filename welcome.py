@@ -14,8 +14,8 @@
 
 import os
 from flask import Flask, jsonify
-import ibm_db
-import ibmiotf.application
+# import ibm_db
+# import ibmiotf.application
 
 
 
