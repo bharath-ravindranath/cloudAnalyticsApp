@@ -14,12 +14,16 @@
 
 import os
 from flask import Flask, jsonify
+import ibm_db
+import ibmiotf.application
+
+
 
 app = Flask(__name__)
 
-@app.route('/')
-def Welcome():
-    return app.send_static_file('index.html')
+# @app.route('/')
+# def Welcome():
+#     return app.send_static_file('index.html')
 
 @app.route('/myapp')
 def WelcomeToMyapp():
