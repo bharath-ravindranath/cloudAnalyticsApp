@@ -75,6 +75,8 @@ def main():
   except ibmiotf.ConnectionException as e:
     print(e.value)
 
+  global db2conn
+  
   if 'VCAP_SERVICES' in os.environ:
     db2info = json.loads(os.environ['VCAP_SERVICES'])['dashDB'][0]
     db2cred = db2info['credentials']
@@ -82,7 +84,6 @@ def main():
   db2conn = ibm_db.connect('DATABASE=' + db2cred['db'] + '; HOSTNAME=' + db2cred['hostname'] + '; PORT=' + \
     db2cred['port'] + ';UID=' + db2cred['username'] + ';PWD=' + db2cred['password'] + ';', '', '')
 
-  global db2conn
   app.run(host='0.0.0.0', port=int(port))
 
 
