@@ -25,6 +25,10 @@ def Welcome():
 def WelcomeToMyapp():
     return 'Welcome again to my app running on Bluemix!'
 
+@app.route('/testing')
+def testnig():
+    return "Hi there!"
+
 @app.route('/api/people')
 def GetPeople():
     list = [
