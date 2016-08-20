@@ -27,25 +27,36 @@ options = {
 
 app = Flask(__name__)
 
+
 @app.route('/')
 def Welcome():
   return app.send_static_file('index.html')
 
-# @app.route('/myapp')
-# def WelcomeToMyapp():
-#     return 'Welcome again to my app running on Bluemix!'
+@app.route('/myapp')
+def WelcomeToMyapp():
+  string = "new"
+  if db2conn:
+    stmt = ibm_db.exec_immediate(db2conn,"SELECT * FROM DASH5369.CSIE LIMIT 1;")  
+    # fetch the result  
+  result = ibm_db.fetch_assoc(stmt)
+  string = ''
+  while result != False:
+    string += result['TIME_STAMP'] + ' ' + result['SIGNAL_SENT'] + '\n'
+    result = ibm_db.fetch_assoc(stmt)
+  
+  return string
 
-# @app.route('/testing')
-# def testnig():
-#     return "Hi there!"
+@app.route('/testing')
+def testnig():
+    return "Hi there!"
 
-# @app.route('/api/people')
-# def GetPeople():
-#     list = [
-#         {'name': 'John', 'age': 28},
-#         {'name': 'Bill', 'val': 26}
-#     ]
-#     return jsonify(results=list)
+@app.route('/api/people')
+def GetPeople():
+    list = [
+        {'name': 'John', 'age': 28},
+        {'name': 'Bill', 'val': 26}
+    ]
+    return jsonify(results=list)
 
 # @app.route('/api/people/<name>')
 # def SayHello(name):
@@ -68,25 +79,22 @@ def myDeviceEventCallback(event):
       ins = ibm_db.exec_immediate(db2conn, "INSERT INTO DASH5369.MDV (ID, TIME_STAMP, SINGAL_RECEIVED, SPEED) VALUES (%s, '%s', '%s', %s);" %(s['d']['id'],s['d']['tiemstamp'],s['d']['signal'], s['d']['speed']))
 
 
-def main():
-  try:
-    client = ibmiotf.application.Client(options)
-    client.deviceEventCallback = myDeviceEventCallback
-    client.subscribeToDeviceEvents(event="status")
-  except ibmiotf.ConnectionException as e:
-    print(e.value)
-
-  global db2conn
+try:
+  client = ibmiotf.application.Client(options)
+  client.deviceEventCallback = myDeviceEventCallback
+  client.subscribeToDeviceEvents(event="status")
+  client.connect()
+except ibmiotf.ConnectionException as e:
+  print(e.value)
   
-  if 'VCAP_SERVICES' in os.environ:
-    db2info = json.loads(os.environ['VCAP_SERVICES'])['dashDB'][0]
-    db2cred = db2info['credentials']
+if 'VCAP_SERVICES' in os.environ:  
+  db2info = json.loads(os.environ['VCAP_SERVICES'])['dashDB'][0]
+  db2cred = db2info["credentials"]
 
-  db2conn = ibm_db.connect('DATABASE=' + db2cred['db'] + '; HOSTNAME=' + db2cred['hostname'] + '; PORT=' + db2cred['port'] + ';UID=' + db2cred['username'] + ';PWD=' + db2cred['password'] + ';', '', '')
-
-
+#Connect to dashdb   
+db2conn = ibm_db.connect("DATABASE="+db2cred['db']+";HOSTNAME="+db2cred['hostname']+";PORT="+str(db2cred['port'])+";UID="+db2cred['username']+";PWD="+db2cred['password']+";","","")
 
 port = os.getenv('PORT', '5000')
 if __name__ == "__main__":
   app.run(host='0.0.0.0', port=int(port))
-  # main()
+
